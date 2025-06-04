@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>KanaVoice｜気持ちを打ち明けてみて</title>
+  <style>
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: #fff0f5;
+      color: #333;
+      text-align: center;
+      padding: 50px;
+    }
+    textarea {
+      width: 80%;
+      height: 100px;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+    }
+    .response {
+      margin-top: 40px;
+      font-size: 20px;
+      font-weight: bold;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>今日はどんな気分？</h1>
+  <textarea id="feeling" placeholder="例：さみしい、やる気が出ない、恋がしたい..."></textarea><br />
+  <button onclick="giveKanaAdvice()">Kanaの声を聞く</button>
+  <div class="response" id="responseText"></div>
+
+  <script>
+    const responses = [
+      {
+        keywords: ["会いたい", "寂しい", "ひとり"],
+        text: "『会いたくて 会いたくて 震える…』\nそんな夜もあるよね。でもね、あの人もきっとあなたを想ってる。"
+      },
+      {
+        keywords: ["孤独", "誰にも言えない"],
+        text: "『誰にも言えない 本当の気持ち』って、あるよね。\n大丈夫、私もそうだったよ。今ここで吐き出していいよ。"
+      },
+      {
+        keywords: ["泣きたい", "涙", "涙が出る"],
+        text: "『涙の数だけ強くなれる』って信じてる。\n泣くって悪いことじゃないよ。"
+      },
+      {
+        keywords: ["自信ない", "怖い", "不安"],
+        text: "『怖がらないで 失敗してもいいよ』\n私もいっぱい間違えた。でもそれでも今こうして笑えてるよ。"
+      },
+      {
+        keywords: ["進めない", "未来", "見えない"],
+        text: "『未来はきっと キミ次第』\n焦らなくていいよ。ゆっくり、自分のタイミングで歩けばいい。"
+      },
+      {
+        keywords: ["比べる", "劣等感"],
+        text: "『誰かと比べても 意味ないってわかってる』\nでも比べちゃう時もあるよね。でもあなたはあなただけの素敵があるんだよ。"
+      },
+      {
+        keywords: ["片思い", "叶わない", "一方通行"],
+        text: "『届けたい気持ちは ここにあるのに…』\n想いが伝わらないってつらいよね。でもその気持ち、尊いよ。"
+      },
+      {
+        keywords: ["失恋", "別れた", "フラれた"],
+        text: "『Say goodbye さよならだね…』\nでも別れは新しい自分に出会うチャンスかも。ゆっくり元気取り戻していこう。"
+      },
+      {
+        keywords: ["未読", "既読スルー", "LINE"],
+        text: "『ただ既読がつかないだけで 涙が出そうになる』\nその気持ち、めっちゃわかる。でも本当に大事な人は、ちゃんと返ってくるから。"
+      },
+      {
+        keywords: ["頑張りたい", "努力", "やる気"],
+        text: "『負けたくないよって 自分に言い聞かせてた』\nその気持ち、もうそれだけで尊敬だよ。"
+      },
+      {
+        keywords: ["疲れた", "頑張れない", "限界"],
+        text: "『頑張りすぎないで そのままでいいよ』\nちょっとくらい、手抜いてもいいんだよ。"
+      },
+      {
+        keywords: ["モチベ", "無理", "気力がない"],
+        text: "『無理に笑わなくていいんだよ』\nそんな日は、温かい飲み物でも飲もっか。"
+      },
+      {
+        keywords: ["ありがとう", "感謝", "嬉しい"],
+        text: "『ありがとうって言葉だけじゃ 足りないくらい』\nその気持ちを大事にできるあなた、すごく素敵。"
+      },
+      {
+        keywords: ["夢", "叶える", "目標"],
+        text: "『夢はただの夢じゃ終われない』\nそう思えた時から、すでに半分叶ってるよ。"
+      },
+      {
+        keywords: ["楽しい", "幸せ", "笑顔"],
+        text: "『きっと明日は今日よりもっと笑える』\nその笑顔が、あなた自身をもっと好きにさせてくれるはず。"
+      },
+      {
+        keywords: ["嫌い", "無価値", "意味がない"],
+        text: "『私じゃダメなの？』って思うとき、あるよね。\nでもね、そのままのあなたを、私は応援したい。"
+      },
+      {
+        keywords: ["認められたい", "存在意義"],
+        text: "『誰かに必要とされたくて 必死だった私』\nでも、あなたはもう十分頑張ってるよ。"
+      },
+      {
+        keywords: ["家族", "支え", "絆"],
+        text: "『たとえ何があっても 守りたい人がいる』\nその存在が、あなたを強くしてくれるね。"
+      },
+      {
+        keywords: ["信じたい", "信じられない"],
+        text: "『信じるって簡単じゃないよね』\nでも信じたいって思う気持ちが、もうすでに愛だよ。"
+      }
+    ];
+
+    function giveKanaAdvice() {
+      const input = document.getElementById("feeling").value.toLowerCase();
+      const res = document.getElementById("responseText");
+      let found = false;
+
+      for (let item of responses) {
+        for (let keyword of item.keywords) {
+          if (input.includes(keyword)) {
+            res.textContent = item.text;
+            found = true;
+            break;
+          }
+        }
+        if (found) break;
+      }
+
+      if (!found) {
+        res.textContent = "『どんな気持ちでも、あなたはあなたのままでいい。』Kanaより♡";
+      }
+    }
+  </script>
+</body>
+</html>
